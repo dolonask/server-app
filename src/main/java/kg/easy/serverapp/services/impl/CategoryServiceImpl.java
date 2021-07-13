@@ -1,6 +1,7 @@
 package kg.easy.serverapp.services.impl;
 
 import kg.easy.serverapp.dao.CategoryRepo;
+import kg.easy.serverapp.exceptions.ResourceNotFound;
 import kg.easy.serverapp.mappers.CategoryMapper;
 import kg.easy.serverapp.models.Category;
 import kg.easy.serverapp.models.dto.CategoryDto;
@@ -28,16 +29,25 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto update(CategoryDto categoryDto) {
-        return null;
+
+        if (!categoryRepo.existsById(categoryDto.getId())){
+            throw new ResourceNotFound("Категория не найдена!");
+        }
+
+        Category category = categoryMapper.toEntity(categoryDto);
+        category = categoryRepo.save(category);
+        return categoryMapper.toDto(category);
     }
 
     @Override
     public CategoryDto findById(Long id) {
-        return null;
+        Category category = categoryRepo.findById(id).orElseThrow(()->new ResourceNotFound("Категория не найдена!"));
+        return categoryMapper.toDto(category);
     }
 
     @Override
     public List<CategoryDto> findAll() {
-        return null;
+
+        return categoryMapper.toDtos(categoryRepo.findAll());
     }
 }
